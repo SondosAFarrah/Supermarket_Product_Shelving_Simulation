@@ -4,26 +4,26 @@
 #include "header.h"
 #define BUFFER_SIZE 100
 #define SHM_SIZE sizeof(Product) * BUFFER_SIZE
-
+int item_count;
 void readingUserDefined();
-Product* createSharedMemory();
+Product* storageSharedMemory();
+Product* shelveSharedMemory();
 
 int teamsNum , employeeNum, shelvesNum, minItemsThreshold, maxItemsThreshold;
 int main() {
 
     // User Defined Values reading from text file.
     readingUserDefined();
-    Product* storageArea = createSharedMemory();
-    for(int i=0; i< sizeof(storageArea);i++){
-        printf("%s %d\n ",storageArea[i].name, storageArea[i].available_number);
+    //creating and reading shared memories for the hole storage and for shelves
+    Product* storageArea = storageSharedMemory();
+    Product* shelveArea = shelveSharedMemory();
+    for(int i=0; i< item_count;i++){
+        printf("%s %d\n",storageArea[i].name, storageArea[i].available_number);
     }
-   // Product* shelveArea = createSharedMemory(1);
-
-
-
-
-
-
+    printf("---------------------------------------------------------\n");
+    for(int i=0; i< item_count;i++){
+        printf("%s %d\n",shelveArea[i].name, shelveArea[i].available_number);
+    }
     return 0;
 }
 
@@ -68,8 +68,7 @@ void readingUserDefined() {
 
     // You can now use these variables in y
 }
-
-Product* createSharedMemory() {
+Product* storageSharedMemory() {
     // Get shared memory segment key
     key_t key = ftok(".", 's');
     if (key == -1) {
@@ -79,7 +78,7 @@ Product* createSharedMemory() {
 
     // Allocate shared memory segment
     int shm_id = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
-   // cashiersSMID = shm_id;
+    // cashiersSMID = shm_id;
     if (shm_id == -1) {
         perror("shmget");
         exit(-1);
@@ -99,22 +98,63 @@ Product* createSharedMemory() {
     }
 
     // Read items from file
-    int item_count = 0;
+item_count=-1;
     while (!feof(file)) {
-        if (item_count >= BUFFER_SIZE) {
-            // Buffer full, handle overflow
-            break;
-        }
+        item_count++;
+
+        // Read item data
+        Product product;
+        fscanf(file, "%s %d", product.name, &product.available_number);
+        memcpy(&product_buffer[item_count], &product, sizeof(Product));
+
+
+    }
+    fclose(file);
+    return product_buffer;
+}
+Product* shelveSharedMemory(){
+    // Get shared memory segment key
+    key_t key1 = ftok(".", 'm');
+    if (key1 == -1) {
+        perror("ftok");
+        exit(-1);
+    }
+
+    // Allocate shared memory segment
+    int shm_id = shmget(key1, SHM_SIZE, IPC_CREAT | 0666);
+
+    if (shm_id == -1) {
+        perror("shmget");
+        exit(-1);
+    }
+
+    // Attach shared memory segment
+    Product *product_buffer = (Product *) shmat(shm_id, NULL, 0);
+    if (product_buffer == (Product * ) - 1) {
+        perror("shmat");
+        exit(-1);
+    }
+    // read file
+    FILE *file = fopen("products.txt", "r");
+    if (file == NULL) {
+        perror("fopen");
+        exit(-1);
+    }
+
+    // Read items from file
+    item_count=-1;
+    while (!feof(file)) {
+        item_count++;
+
         // Read item data
         Product product;
 
-            fscanf(file, "%s %d", product.name, &product.available_number);
+        fscanf(file, "%s %d", product.name, &product.available_number);
+        product.available_number=maxItemsThreshold;
         memcpy(&product_buffer[item_count], &product, sizeof(Product));
-        item_count++;
+
     }
 
     fclose(file);
-
-
     return product_buffer;
 }
