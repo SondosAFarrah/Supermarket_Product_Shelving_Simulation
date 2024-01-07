@@ -1,20 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "header.h"
+#define BUFFER_SIZE 100
+#define SHM_SIZE sizeof(Product) * BUFFER_SIZE
 
 void readingUserDefined();
+Product* createSharedMemory();
+
 int teamsNum , employeeNum, shelvesNum, minItemsThreshold, maxItemsThreshold;
 int main() {
 
-
+    // User Defined Values reading from text file.
     readingUserDefined();
-    printf("teamsNum: %d\n", teamsNum);
-    printf("employeeNum: %d\n", employeeNum);
-    printf("shelvesNum: %d\n", shelvesNum);
-    printf("minItemsThreshold: %d\n", minItemsThreshold);
-    printf("maxItemsThreshold: %d\n", maxItemsThreshold);
-
-
+    Product* storageArea = createSharedMemory();
+    for(int i=0; i< sizeof(storageArea);i++){
+        printf("%s %d\n ",storageArea[i].name, storageArea[i].available_number);
+    }
+   // Product* shelveArea = createSharedMemory(1);
 
 
 
@@ -64,4 +67,54 @@ void readingUserDefined() {
     // Display the values (optional)
 
     // You can now use these variables in y
+}
+
+Product* createSharedMemory() {
+    // Get shared memory segment key
+    key_t key = ftok(".", 's');
+    if (key == -1) {
+        perror("ftok");
+        exit(-1);
+    }
+
+    // Allocate shared memory segment
+    int shm_id = shmget(key, SHM_SIZE, IPC_CREAT | 0666);
+   // cashiersSMID = shm_id;
+    if (shm_id == -1) {
+        perror("shmget");
+        exit(-1);
+    }
+
+    // Attach shared memory segment
+    Product *product_buffer = (Product *) shmat(shm_id, NULL, 0);
+    if (product_buffer == (Product * ) - 1) {
+        perror("shmat");
+        exit(-1);
+    }
+    // read file
+    FILE *file = fopen("products.txt", "r");
+    if (file == NULL) {
+        perror("fopen");
+        exit(-1);
+    }
+
+    // Read items from file
+    int item_count = 0;
+    while (!feof(file)) {
+        if (item_count >= BUFFER_SIZE) {
+            // Buffer full, handle overflow
+            break;
+        }
+        // Read item data
+        Product product;
+
+            fscanf(file, "%s %d", product.name, &product.available_number);
+        memcpy(&product_buffer[item_count], &product, sizeof(Product));
+        item_count++;
+    }
+
+    fclose(file);
+
+
+    return product_buffer;
 }
