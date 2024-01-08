@@ -26,13 +26,13 @@
 #include <sys/mman.h>
 #include <time.h>
 #endif
+
+#define BUFFER_SIZE 100
+#define SHM_SIZE sizeof(Product) * BUFFER_SIZE
 typedef struct {
 
     pid_t pid;
-    float amount;
     int shoppingTime;
-    int waitingTime;
-    int impatienceThreshold;
     int itemsNum;
     int cashierMsgQueueId;
 } Customer;
@@ -42,6 +42,11 @@ typedef struct {
     Customer customerIsWaiting;
 } MessageQueue;
 
+typedef struct {
+    pid_t team_id;
+    pthread_t manager;
+    pthread_t employee[3];
+} Team;
 
 
 typedef struct {
