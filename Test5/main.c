@@ -17,11 +17,11 @@ int main() {
     Product* shelveArea = shelveSharedMemory();
     printf("---------------------WELCOME-----------------------\n\n");
     printf("------------------items in storage--------------------------\n");
-    for(int i=0; i< item_count;i++){
+    for(int i=0; i< item_count+1;i++){
         printf("%s %d\n",storageArea[i].name, storageArea[i].available_number);
     }
     printf("---------------------items in shelves--------------------------\n");
-    for(int i=0; i< item_count;i++){
+    for(int i=0; i< item_count+1;i++){
         printf("shelve %d: %s %d\n",i+1,shelveArea[i].name, shelveArea[i].available_number);
     }
     // ------------------------------team process----------------------------------------//
@@ -155,14 +155,11 @@ Product* storageSharedMemory() {
     // Read items from file
     item_count=-1;
     while (!feof(file)) {
-
-
+        item_count++;
         // Read item data
         Product product;
         fscanf(file, "%s %d %d", product.name, &product.available_number, &product.isFree);
         memcpy(&product_buffer[item_count], &product, sizeof(Product));
-        item_count++;
-
     }
     printf("iitemmm count %d\n",item_count);
     fclose(file);
