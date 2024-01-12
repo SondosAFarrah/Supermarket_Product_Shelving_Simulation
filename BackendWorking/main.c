@@ -18,7 +18,7 @@ int main() {
         perror("alarm signal error\n");
         exit(1);
     }
-    alarm(120);
+    alarm(40);
 
     // User Defined Values reading from text file.
     readingUserDefined();
@@ -228,6 +228,7 @@ int main() {
     }
     void alarmHandler(int signalNumber){
         printf("Time is done!\n");
+        
         kill(0, SIGTERM);
     }
     Team *teamsSharedMemory() {
