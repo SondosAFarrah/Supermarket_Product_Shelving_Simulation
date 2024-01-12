@@ -1,6 +1,4 @@
 #include <GL/glut.h>
-#include <ctime>
-#include <cstdlib>
 
 const int windowWidth = 800;
 const int windowHeight = 600;
