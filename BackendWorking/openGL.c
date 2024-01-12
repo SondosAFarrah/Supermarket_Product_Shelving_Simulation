@@ -1,17 +1,16 @@
-#include <iostream>
 #include <GL/glut.h>
+#include <ctime>
+#include <cstdlib>
 
-// Define some constants
 const int windowWidth = 800;
 const int windowHeight = 600;
 const float shelfWidth = 10.0f;
 const float shelfHeight = 100.0f;
 const int numShelves = 5;
 
-// Employee and customer positions
 float employeeX[numShelves];
 float customerX = -50.0f;
-bool shelvesEmpty[numShelves] = {true, true, true, true, true};
+bool shelvesEmpty[numShelves] = { true, true, true, true, true };
 
 void init() {
     glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -21,7 +20,7 @@ void init() {
 }
 
 void drawShelf(float x, float y) {
-    glColor3f(0.8f, 0.6f, 0.4f); // Brown color for shelves
+    glColor3f(0.8f, 0.6f, 0.4f);
     glBegin(GL_POLYGON);
     glVertex2f(x, y);
     glVertex2f(x + shelfWidth, y);
@@ -31,7 +30,7 @@ void drawShelf(float x, float y) {
 }
 
 void drawEmployee(float x) {
-    glColor3f(0.0f, 0.0f, 1.0f); // Blue color for employees
+    glColor3f(0.0f, 0.0f, 1.0f);
     glBegin(GL_POLYGON);
     glVertex2f(x, 10);
     glVertex2f(x + 20, 10);
@@ -41,7 +40,7 @@ void drawEmployee(float x) {
 }
 
 void drawCustomer() {
-    glColor3f(1.0f, 0.0f, 0.0f); // Red color for customers
+    glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_POLYGON);
     glVertex2f(customerX, 10);
     glVertex2f(customerX + 20, 10);
@@ -53,12 +52,10 @@ void drawCustomer() {
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Draw shelves
     for (int i = 0; i < numShelves; i++) {
         drawShelf(i * (shelfWidth + 10), 100);
     }
 
-    // Draw employees and customers
     for (int i = 0; i < numShelves; i++) {
         drawEmployee(employeeX[i]);
     }
@@ -68,15 +65,12 @@ void display() {
 }
 
 void update(int value) {
-    // Update employee positions (random movement)
     for (int i = 0; i < numShelves; i++) {
-        employeeX[i] += rand() % 5 - 2; // Random movement between -2 and 2
+        employeeX[i] += rand() % 5 - 2;
     }
 
-    // Update customer position (random movement)
     customerX += rand() % 5;
 
-    // Check if customers take items and shelves become empty
     for (int i = 0; i < numShelves; i++) {
         if (customerX > i * (shelfWidth + 10) && customerX < (i + 1) * (shelfWidth + 10) && shelvesEmpty[i]) {
             shelvesEmpty[i] = false;
@@ -84,7 +78,7 @@ void update(int value) {
     }
 
     glutPostRedisplay();
-    glutTimerFunc(100, update, 0); // Update every 100ms
+    glutTimerFunc(100, update, 0);
 }
 
 int main(int argc, char** argv) {
