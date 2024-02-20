@@ -1,3 +1,0 @@
-milk 30
-labana 20
-cheese 25
