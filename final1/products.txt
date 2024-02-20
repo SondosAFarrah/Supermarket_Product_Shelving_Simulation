@@ -1,3 +1,0 @@
-milk 5
-labana 5
-cheese 5
