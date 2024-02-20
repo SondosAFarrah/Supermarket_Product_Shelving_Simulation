@@ -1,5 +1,0 @@
-teamsNum 3
-employeeNum 4
-shelvesNum 3
-minItemsThreshold 3
-maxItemsThreshold 10
